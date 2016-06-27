@@ -1,6 +1,3 @@
-# We want to avoid the use of truthy values while guessing the type.
-# rubocop:disable Style/DoubleNegation
-
 module Csjparser
   class Parser
     attr_reader :filepath
@@ -35,46 +32,18 @@ module Csjparser
       final_element
     end
 
-    def bool?(value)
-      !!(value =~ /^(true|yes)$/i || value =~ /^(false|no)$/i)
-    end
-
-    def integer?(value)
-      !!(!value.empty? && value !~ /\D/)
-    end
-
-    def float?(value)
-      !!Float(value)
-    rescue
-      false
-    end
-
-    def date?(value)
-      !!Date.parse(value)
-    rescue
-      false
-    end
-
-    def nil?(value)
-      value == 'null'
-    end
-
-    def array?(value)
-      !!(value =~ /(^\[|\]$)/)
-    end
-
     def parse(value)
-      if nil?(value)
+      if Csjparser::ValueChecker.nil?(value)
         nil
-      elsif bool?(value)
+      elsif Csjparser::ValueChecker.bool?(value)
         !!(value =~ /^(true|yes)/i)
-      elsif integer?(value)
+      elsif Csjparser::ValueChecker.integer?(value)
         value.to_i
-      elsif float?(value)
+      elsif Csjparser::ValueChecker.float?(value)
         Float(value)
-      elsif date?(value)
+      elsif Csjparser::ValueChecker.date?(value)
         Date.parse(value)
-      elsif array?(value)
+      elsif Csjparser::ValueChecker.array?(value)
         parse_array(value)
       else
         value

@@ -2,6 +2,7 @@ require "csjparser/version"
 require 'date'
 
 require 'csjparser/reader'
+require 'csjparser/value_checker'
 require 'csjparser/parser'
 
 module Csjparser
