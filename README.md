@@ -1,5 +1,7 @@
 # Csjparser
 
+[![Build Status](https://travis-ci.org/estebanz01/csjparser.svg?branch=master)](https://travis-ci.org/estebanz01/csjparser)
+
 CSJ Parser is a gem that allows you parse a [Comma Separated JSON](http://www.kirit.com/Comma%20Separated%20JSON) file into a Hash ruby object.
 The idea of this project is to have fun and learn a lot while coding in ruby.
 
