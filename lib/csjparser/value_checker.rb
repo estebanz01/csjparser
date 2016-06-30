@@ -3,32 +3,38 @@
 
 module Csjparser
   class ValueChecker
-    def self.bool?(value)
-      !!(value =~ /^(true|yes)$/i || value =~ /^(false|no)$/i)
+    attr_reader :object
+
+    def initialize(object)
+      @object = object
     end
 
-    def self.integer?(value)
-      !!(!value.empty? && value !~ /\D/)
+    def bool?
+      !!(object =~ /^(true|yes)$/i || object =~ /^(false|no)$/i)
     end
 
-    def self.float?(value)
-      !!Float(value)
+    def integer?
+      !!(!object.empty? && object !~ /\D/)
+    end
+
+    def float?
+      !!Float(object)
     rescue
       false
     end
 
-    def self.date?(value)
-      !!Date.parse(value)
+    def date?
+      !!Date.parse(object)
     rescue
       false
     end
 
-    def self.nil?(value)
-      value == 'null'
+    def nil?
+      object == 'null'
     end
 
-    def self.array?(value)
-      !!(value =~ /(^\[|\]$)/)
+    def array?
+      !!(object =~ /(^\[|\]$)/)
     end
   end
 end

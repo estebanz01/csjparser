@@ -1,49 +1,65 @@
+# rubocop:disable Style/DoubleNegation
+
 module Csjparser
   class Parser
     attr_reader :filepath
-    attr_accessor :keys
 
     def initialize(filepath)
       @filepath = filepath
     end
 
     def parse_document
-      final_element = []
+      parsed_document = []
       Reader.read(filepath) do |file|
         keys = file.gets.gsub(/("|'|\s)/, '').chomp.split(',')
 
         file.each_line do |line|
-          values = line.gsub(', ', ',').chomp
-          values = values.gsub(/(?:\[|(?!^)\G){1}[^,\]]*\K,/, '{array}').split(',')
+          parsed_values = process_line(line)
 
-          parsed_values = values.map do |value|
-            # Trim first and last double quotes.
-            parse(value.gsub(/(^"|"$)/, ''))
-          end
-
-          final_element << {}.tap do |memo|
-            keys.each_with_index do |key, index|
-              memo[key.to_sym] = parsed_values[index]
-            end
-          end
+          parsed_document << build_hash(keys, parsed_values)
         end
       end
 
-      final_element
+      parsed_document
     end
 
+    def process_line(line)
+      values = line.gsub(', ', ',').chomp
+
+      # Identify arrays before splitting a file and replace commas with {array} strings.
+      values = values.gsub(/(?:\[|(?!^)\G){1}[^,\]]*\K,/, '{array}').split(',')
+
+      values.map do |value|
+        # Trim first and last double quotes.
+        parse(value.gsub(/(^"|"$)/, ''))
+      end
+    end
+    private :process_line
+
+    def build_hash(keys, parsed_values)
+      {}.tap do |memo|
+        keys.each_with_index do |key, index|
+          memo[key.to_sym] = parsed_values[index]
+        end
+      end
+    end
+    private :build_hash
+
     def parse(value)
-      if Csjparser::ValueChecker.nil?(value)
+      object = Csjparser::ValueChecker.new(value)
+
+      case
+      when object.nil?
         nil
-      elsif Csjparser::ValueChecker.bool?(value)
+      when object.bool?
         !!(value =~ /^(true|yes)/i)
-      elsif Csjparser::ValueChecker.integer?(value)
+      when object.integer?
         value.to_i
-      elsif Csjparser::ValueChecker.float?(value)
+      when object.float?
         Float(value)
-      elsif Csjparser::ValueChecker.date?(value)
+      when object.date?
         Date.parse(value)
-      elsif Csjparser::ValueChecker.array?(value)
+      when object.array?
         parse_array(value)
       else
         value
@@ -55,7 +71,7 @@ module Csjparser
       array_values = value.gsub(/(^\[|\]$)/, '').split('{array}')
 
       array_values.map do |element|
-        raise 'nested arrays not supported' if array?(element)
+        raise 'nested arrays not supported' if Csjparser::ValueChecker.new(element).array?
         parse(element.gsub(/(^"|"$)/, ''))
       end
     end
