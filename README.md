@@ -24,7 +24,7 @@ Or install it yourself as:
 
 ## Usage
 
-Simply require the csjparser and use the parser class:
+Simply require the csjparser and use the Parser or ValueChecker class as follows:
 
 ```ruby
 require 'csjparser'
@@ -34,7 +34,35 @@ filepath = '/dir/of/file.csj'
 # This will give you an object like:
 # [{ key: value1 }, ..., { key: valueN }]
 array_of_hashes = Csjparser::Parse.new(filepath).parse_document
+
+# You can also use the ValueChecker class to see how an object respond to a value.
+value_a = 'weirdString'
+value_b = '34'
+value_c = '2015-06-31'
+
+Csjparser::ValueChecker.new(value_a).integer? # false
+Csjparser::ValueChecker.new(value_b).integer? # true
+Csjparser::ValueChecker.new(value_c).integer? # false
+
+Csjparser::ValueChecker.new(value_a).date? # false
+Csjparser::ValueChecker.new(value_b).date? # false
+Csjparser::ValueChecker.new(value_c).date? true
+
+# The methods availables in ValueChecker class are:
+# bool?
+# nil?
+# date?
+# array?
+# integer?
+# float?
 ```
+
+## Known issues (TODO list)
+
+* It does not support nested arrays.
+* It does not parse valid hexadecimal digits.
+* The valid ["[1, 2, 3, 4]"] is not supported.
+* It does not create a valid CSJ file from a ruby object.
 
 ## Development
 
