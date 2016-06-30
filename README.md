@@ -24,7 +24,17 @@ Or install it yourself as:
 
 ## Usage
 
-TODO: Write usage instructions here
+Simply require the csjparser and use the parser class:
+
+```ruby
+require 'csjparser'
+
+filepath = '/dir/of/file.csj'
+
+# This will give you an object like:
+# [{ key: value1 }, ..., { key: valueN }]
+array_of_hashes = Csjparser::Parse.new(filepath).parse_document
+```
 
 ## Development
 
